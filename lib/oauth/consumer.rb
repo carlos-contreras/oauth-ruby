@@ -185,14 +185,15 @@ module OAuth
         (h = headers.select { |hdr| hdr =~ /^OAuth / }).any? &&
         h.first =~ /oauth_problem/
 
-        # puts "Header: #{h.first}"
+        puts "*"*100
+        puts "Header: #{h.first}"
 
         # TODO doesn't handle broken responses from api.login.yahoo.com
         # remove debug code when done
         params = OAuth::Helper.parse_header(h.first)
 
-        # puts "Params: #{params.inspect}"
-        # puts "Body: #{rsp.body}"
+        puts "Params: #{params.inspect}"
+        puts "Body: #{rsp.body}"
 
         raise OAuth::Problem.new(params.delete("oauth_problem"), rsp, params)
       end
@@ -233,6 +234,7 @@ module OAuth
         response.error! if uri.path == path # careful of those infinite redirects
         self.token_request(http_method, uri.path, token, request_options, arguments)
       when (400..499)
+        Rails.logger.info response.inspect
         raise OAuth::Unauthorized, response
       else
         response.error!
